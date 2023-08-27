@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>tp1-modelo</artifactId>
+    <artifactId>tp2-persistenciaObjetos</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
