@@ -16,12 +16,12 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ClienteServiceTest {
-    private EntityManagerFactory emf;
+    /*private EntityManagerFactory emf;
 
     @BeforeEach
     public void setUp() {
         emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
-    }
+    }*/
 
     @Test
     public void persistirCliente() {
@@ -114,9 +114,9 @@ public class ClienteServiceTest {
                 em.close();
         }
     }
-    @AfterEach
+    /*@AfterEach
     public void tearDown() {
         emf.close();
-    }
+    }*/
 
 }
