@@ -40,6 +40,8 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
+            if (emf != null)
+                emf.close();
         }
     }
 
@@ -67,6 +69,8 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
+            if (emf != null)
+                emf.close();
         }
     }
 
@@ -89,6 +93,8 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
+            if (emf != null)
+                emf.close();
         }
     }
 
@@ -110,6 +116,31 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
+            if (emf != null)
+                emf.close();
+        }
+    }
+
+    @Override
+    public Cliente buscarCliente(Long idCliente) {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory(servicio);
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            Cliente c = em.find(Cliente.class, idCliente);
+            if (c == null)
+                throw new RuntimeException("El cliente no existe.");
+            tx.commit();
+            return c;
+        } catch (Exception e) {
+            tx.rollback();
+            throw new RuntimeException(e);
+        } finally {
+            if (em != null && em.isOpen())
+                em.close();
+            if (emf != null)
+                emf.close();
         }
     }
 }

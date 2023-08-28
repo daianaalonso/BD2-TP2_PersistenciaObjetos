@@ -2,6 +2,8 @@ package ar.unrn.tp.jpa.servicios;
 
 import ar.unrn.tp.modelo.Cliente;
 import ar.unrn.tp.modelo.Tarjeta;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -14,11 +16,17 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ClienteServiceTest {
+    private EntityManagerFactory emf;
+
+    @BeforeEach
+    public void setUp() {
+        emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
+    }
+
     @Test
     public void persistirCliente() {
         ClienteServiceJPA clienteServiceJPA = new ClienteServiceJPA("objectdb:myDbTestFile.tmp;drop");
         clienteServiceJPA.crearCliente("Daiana", "Alonso", "42448077", "dalonso@gmail.com");
-
         inTransactionExecute(
                 (em) -> {
                     Cliente cliente = em.find(Cliente.class, 1L);
@@ -35,7 +43,6 @@ public class ClienteServiceTest {
         ClienteServiceJPA clienteServiceJPA = new ClienteServiceJPA("objectdb:myDbTestFile.tmp;drop");
         clienteServiceJPA.crearCliente("Daiana", "Alonso", "42448076", "dalonso@gmail.com");
         clienteServiceJPA.modificarCliente(1L, "Dai", "Ramos", "42448078", "dramos@gmail.com");
-
         inTransactionExecute(
                 (em) -> {
                     Cliente cliente = em.find(Cliente.class, 1L);
@@ -70,7 +77,7 @@ public class ClienteServiceTest {
     }
 
     //es necesario????
-    @Test
+   @Test
     public void listarTarjetasDeClientePersistido() {
         ClienteServiceJPA clienteServiceJPA = new ClienteServiceJPA("objectdb:myDbTestFile.tmp;drop");
         clienteServiceJPA.crearCliente("Daiana", "Alonso", "42448073", "dalonso@gmail.com");
@@ -107,4 +114,9 @@ public class ClienteServiceTest {
                 em.close();
         }
     }
+    @AfterEach
+    public void tearDown() {
+        emf.close();
+    }
+
 }

@@ -12,7 +12,6 @@ import javax.persistence.Persistence;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProductoServiceTest {
@@ -22,10 +21,10 @@ public class ProductoServiceTest {
         Categoria cateIndumentaria = new Categoria("Indumentaria");
         Marca marcaNike = new Marca("Nike");
         inTransactionExecute(
-                (em) -> em.persist(cateIndumentaria)
-        );
-        inTransactionExecute(
-                (em) -> em.persist(marcaNike)
+                (em) -> {
+                    em.persist(cateIndumentaria);
+                    em.persist(marcaNike);
+                }
         );
 
         ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
@@ -44,48 +43,14 @@ public class ProductoServiceTest {
     }
 
     @Test
-    public void persistirProducto2() {
-        Categoria cateIndumentaria = new Categoria("Indumentaria");
-        Marca marcaNike = new Marca("Nike");
-        inTransactionExecute(
-                (em) -> em.persist(cateIndumentaria)
-        );
-        inTransactionExecute(
-                (em) -> em.persist(marcaNike)
-        );
-
-        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
-        productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());
-
-        inTransactionExecute(
-                (em) -> {
-                    Producto productoPersistido = em.createQuery("SELECT p FROM Producto p " +
-                                    "WHERE p.codigo = :codigo " +
-                                    "and p.descripcion = :descripcion " +
-                                    "and p.precio = :precio " +
-                                    "and p.categoria = :idCategoria " +
-                                    "and p.marca = :idMarca", Producto.class)
-                            .setParameter("codigo", "123")
-                            .setParameter("descripcion", "Remera")
-                            .setParameter("precio", 5000.0)
-                            .setParameter("idCategoria", cateIndumentaria)
-                            .setParameter("idMarca", marcaNike)
-                            .getSingleResult();
-
-                    assertNotNull(productoPersistido);
-                }
-        );
-    }
-
-    @Test
     public void modificarProductoPersistido() {
         Categoria cateIndumentaria = new Categoria("Indumentaria");
         Marca marcaNike = new Marca("Nike");
         inTransactionExecute(
-                (em) -> em.persist(cateIndumentaria)
-        );
-        inTransactionExecute(
-                (em) -> em.persist(marcaNike)
+                (em) -> {
+                    em.persist(cateIndumentaria);
+                    em.persist(marcaNike);
+                }
         );
 
         ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
@@ -109,10 +74,10 @@ public class ProductoServiceTest {
         Categoria cateIndumentaria = new Categoria("Indumentaria");
         Marca marcaNike = new Marca("Nike");
         inTransactionExecute(
-                (em) -> em.persist(cateIndumentaria)
-        );
-        inTransactionExecute(
-                (em) -> em.persist(marcaNike)
+                (em) -> {
+                    em.persist(cateIndumentaria);
+                    em.persist(marcaNike);
+                }
         );
         ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
         productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());

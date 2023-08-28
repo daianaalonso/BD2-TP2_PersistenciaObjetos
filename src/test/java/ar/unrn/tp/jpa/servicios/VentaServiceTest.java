@@ -47,7 +47,7 @@ public class VentaServiceTest {
     }
 
     @Test
-    public void crearVenta() {
+    public void crearVentaConPromosActivas() {
         inTransactionExecute(
                 (em) -> {
                     TypedQuery<Long> q = em.createQuery("SELECT p.id FROM Producto p", Long.class);
