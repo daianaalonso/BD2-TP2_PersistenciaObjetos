@@ -24,7 +24,6 @@ public class ClienteServiceJPA implements ClienteService {
             TypedQuery<Cliente> q = em.createQuery("SELECT c FROM Cliente c WHERE c.dni = :dni", Cliente.class);
             q.setParameter("dni", dni);
             List<Cliente> clientes = q.getResultList();
-
             if (!clientes.isEmpty())
                 throw new RuntimeException("El DNI ya existe.");
 
@@ -40,8 +39,6 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
-            if (emf != null)
-                emf.close();
         }
     }
 
@@ -69,8 +66,6 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
-            if (emf != null)
-                emf.close();
         }
     }
 
@@ -93,8 +88,6 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
-            if (emf != null)
-                emf.close();
         }
     }
 
@@ -116,8 +109,6 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
-            if (emf != null)
-                emf.close();
         }
     }
 
@@ -139,8 +130,6 @@ public class ClienteServiceJPA implements ClienteService {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
-            if (emf != null)
-                emf.close();
         }
     }
 }

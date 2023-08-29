@@ -12,6 +12,7 @@ import javax.persistence.Persistence;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProductoServiceTest {
@@ -40,6 +41,23 @@ public class ProductoServiceTest {
                     assertTrue(producto.suMarcaEs(marcaNike));
                 }
         );
+    }
+
+    @Test
+    public void persistirProductoConCodigoRepetido() {
+        Categoria cateIndumentaria = new Categoria("Indumentaria");
+        Marca marcaNike = new Marca("Nike");
+        inTransactionExecute(
+                (em) -> {
+                    em.persist(cateIndumentaria);
+                    em.persist(marcaNike);
+                }
+        );
+
+        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());
+        assertThrows(RuntimeException.class,
+                () -> productoServiceJPA.crearProducto("123", "Camiseta", 5000.0, cateIndumentaria.getId(), marcaNike.getId()));
     }
 
     @Test

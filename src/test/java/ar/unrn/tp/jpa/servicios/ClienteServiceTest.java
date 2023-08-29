@@ -2,8 +2,6 @@ package ar.unrn.tp.jpa.servicios;
 
 import ar.unrn.tp.modelo.Cliente;
 import ar.unrn.tp.modelo.Tarjeta;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -13,6 +11,7 @@ import javax.persistence.Persistence;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ClienteServiceTest {
@@ -36,6 +35,14 @@ public class ClienteServiceTest {
                     assertTrue(cliente.suEmailEs("dalonso@gmail.com"));
                 }
         );
+    }
+
+    @Test
+    public void persistirClienteConDNIRepetido() {
+        ClienteServiceJPA clienteServiceJPA = new ClienteServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        clienteServiceJPA.crearCliente("Daiana", "Alonso", "42448077", "dalonso@gmail.com");
+        assertThrows(RuntimeException.class,
+                () -> clienteServiceJPA.crearCliente("Andres", "Blanco", "42448077", "ablanco@gmail.com"));
     }
 
     @Test
@@ -77,7 +84,7 @@ public class ClienteServiceTest {
     }
 
     //es necesario????
-   @Test
+    @Test
     public void listarTarjetasDeClientePersistido() {
         ClienteServiceJPA clienteServiceJPA = new ClienteServiceJPA("objectdb:myDbTestFile.tmp;drop");
         clienteServiceJPA.crearCliente("Daiana", "Alonso", "42448073", "dalonso@gmail.com");
@@ -112,11 +119,8 @@ public class ClienteServiceTest {
         } finally {
             if (em != null && em.isOpen())
                 em.close();
+            if (emf != null)
+                emf.close();
         }
     }
-    /*@AfterEach
-    public void tearDown() {
-        emf.close();
-    }*/
-
 }
