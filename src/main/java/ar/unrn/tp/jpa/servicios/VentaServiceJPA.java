@@ -42,7 +42,9 @@ public class VentaServiceJPA implements VentaService {
 
             TypedQuery<PagoPromocion> qp = em.createQuery("SELECT p FROM PagoPromocion p WHERE p.fechaInicio < :fecha and p.fechaFin > :fecha", PagoPromocion.class);
             qp.setParameter("fecha", LocalDate.now());
-            PagoPromocion pagoPromocion = qp.getSingleResult();
+            List<PagoPromocion> pagos = qp.getResultList();
+
+            PagoPromocion pagoPromocion = pagos.stream().findFirst().orElse(null);
 
             TypedQuery<MarcaPromocion> qm = em.createQuery("SELECT m FROM MarcaPromocion m", MarcaPromocion.class);
             List<MarcaPromocion> marcaPromociones = qm.getResultList();

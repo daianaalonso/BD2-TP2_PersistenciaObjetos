@@ -36,9 +36,8 @@ public class VentaServiceTest {
                     pantalon = new Producto("Pantalon", "345", 7000.0, nike, indumentaria);
                     pagoPromocion = new PagoPromocion(LocalDate.now().minusDays(4), LocalDate.now().plusDays(3), 0.08, visa);
                     marcaPromocion = new MarcaPromocion(LocalDate.now().minusDays(7), LocalDate.now().plusDays(3), 0.05, nike);
-
-                    em.persist(pagoPromocion);
                     em.persist(marcaPromocion);
+                    em.persist(pagoPromocion);
                     em.persist(cliente);
                     em.persist(remera);
                     em.persist(pantalon);
