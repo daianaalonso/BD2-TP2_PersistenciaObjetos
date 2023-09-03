@@ -4,6 +4,8 @@ import ar.unrn.tp.modelo.Marca;
 import ar.unrn.tp.modelo.MarcaPromocion;
 import ar.unrn.tp.modelo.PagoPromocion;
 import ar.unrn.tp.modelo.Tarjeta;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -16,10 +18,16 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PromocionServiceTest {
+    private EntityManagerFactory emf;
+
+    @BeforeEach
+    public void setUp() {
+        emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
+    }
 
     @Test
-    public void persistirPromoMarca() {
-        PromocionServiceJPA promocionServiceJPA = new PromocionServiceJPA("objectdb:myDbTestFile.tmp;drop");
+    public void crearPromoMarca() {
+        PromocionServiceJPA promocionServiceJPA = new PromocionServiceJPA(emf);
         promocionServiceJPA.crearDescuento("Nike", LocalDate.now().minusDays(10), LocalDate.now().minusDays(2), 0.05);
 
         inTransactionExecute(
@@ -34,8 +42,8 @@ public class PromocionServiceTest {
     }
 
     @Test
-    public void persistirPromoPago() {
-        PromocionServiceJPA promocionServiceJPA = new PromocionServiceJPA("objectdb:myDbTestFile.tmp;drop");
+    public void crearrPromoPago() {
+        PromocionServiceJPA promocionServiceJPA = new PromocionServiceJPA(emf);
         promocionServiceJPA.crearDescuentoSobreTotal("VISA", LocalDate.now().minusDays(10), LocalDate.now().minusDays(2), 0.08);
 
         inTransactionExecute(
@@ -50,7 +58,6 @@ public class PromocionServiceTest {
     }
 
     public void inTransactionExecute(Consumer<EntityManager> bloqueDeCodigo) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -66,5 +73,10 @@ public class PromocionServiceTest {
             if (em != null && em.isOpen())
                 em.close();
         }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        emf.close();
     }
 }

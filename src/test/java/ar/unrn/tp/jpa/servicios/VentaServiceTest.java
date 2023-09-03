@@ -1,6 +1,7 @@
 package ar.unrn.tp.jpa.servicios;
 
 import ar.unrn.tp.modelo.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class VentaServiceTest {
 
+    private EntityManagerFactory emf;
     private Cliente cliente;
     private Tarjeta visa;
     private Marca nike;
@@ -25,6 +27,7 @@ public class VentaServiceTest {
 
     @BeforeEach
     public void setUp() {
+        emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
         inTransactionExecute(
                 (em) -> {
                     cliente = new Cliente("Daiana", "Alonso", "42448077", "dalonso@gmail.com");
@@ -53,7 +56,7 @@ public class VentaServiceTest {
                     this.productos = q.getResultList();
                 }
         );
-        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
         ventaServiceJPA.realizarVenta(cliente.getId(), this.productos, visa.getId());
 
         inTransactionExecute(
@@ -66,6 +69,25 @@ public class VentaServiceTest {
     }
 
     @Test
+    public void crearVentaSinProductos() {
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
+
+        assertThrows(RuntimeException.class, () -> ventaServiceJPA.realizarVenta(cliente.getId(), null, visa.getId()));
+    }
+
+    @Test
+    public void crearVentaSinTarjeta() {
+        inTransactionExecute(
+                (em) -> {
+                    TypedQuery<Long> q = em.createQuery("SELECT p.id FROM Producto p", Long.class);
+                    this.productos = q.getResultList();
+                }
+        );
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
+        assertThrows(RuntimeException.class, () -> ventaServiceJPA.realizarVenta(cliente.getId(), this.productos, null));
+    }
+
+    @Test
     public void crearVentaConTarjetaInvalida() {
         Tarjeta naranja = new Tarjeta("Naranja");
         inTransactionExecute(
@@ -75,8 +97,7 @@ public class VentaServiceTest {
                     em.persist(naranja);
                 }
         );
-        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA("objectdb:myDbTestFile.tmp;drop");
-
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
         assertThrows(RuntimeException.class, () -> ventaServiceJPA.realizarVenta(cliente.getId(), this.productos, naranja.getId()));
     }
 
@@ -88,8 +109,7 @@ public class VentaServiceTest {
                     this.productos = q.getResultList();
                 }
         );
-        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA("objectdb:myDbTestFile.tmp;drop");
-
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
         assertThrows(RuntimeException.class, () -> ventaServiceJPA.realizarVenta(null, this.productos, visa.getId()));
     }
 
@@ -101,7 +121,7 @@ public class VentaServiceTest {
                     this.productos = q.getResultList();
                 }
         );
-        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
         Double resultadoActual = ventaServiceJPA.calcularMonto(this.productos, visa.getId());
 
         assertEquals(9177.0, resultadoActual);
@@ -109,7 +129,7 @@ public class VentaServiceTest {
 
     @Test
     public void calcularMontoSinProductos() {
-        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
 
         assertThrows(RuntimeException.class, () -> ventaServiceJPA.calcularMonto(null, visa.getId()));
     }
@@ -122,7 +142,7 @@ public class VentaServiceTest {
                     this.productos = q.getResultList();
                 }
         );
-        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
 
         assertThrows(RuntimeException.class, () -> ventaServiceJPA.calcularMonto(this.productos, null));
     }
@@ -135,7 +155,7 @@ public class VentaServiceTest {
                     this.productos = q.getResultList();
                 }
         );
-        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        VentaServiceJPA ventaServiceJPA = new VentaServiceJPA(emf);
         ventaServiceJPA.realizarVenta(cliente.getId(), this.productos, visa.getId());
         List<Venta> ventasPersistidas = ventaServiceJPA.ventas();
 
@@ -143,7 +163,6 @@ public class VentaServiceTest {
     }
 
     public void inTransactionExecute(Consumer<EntityManager> bloqueDeCodigo) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -159,5 +178,10 @@ public class VentaServiceTest {
             if (em != null && em.isOpen())
                 em.close();
         }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        emf.close();
     }
 }

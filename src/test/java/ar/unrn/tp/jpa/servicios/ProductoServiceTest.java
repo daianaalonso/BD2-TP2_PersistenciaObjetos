@@ -3,6 +3,8 @@ package ar.unrn.tp.jpa.servicios;
 import ar.unrn.tp.modelo.Categoria;
 import ar.unrn.tp.modelo.Marca;
 import ar.unrn.tp.modelo.Producto;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.persistence.EntityManager;
@@ -17,8 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProductoServiceTest {
 
+    private EntityManagerFactory emf;
+
+    @BeforeEach
+    public void setUp() {
+        emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
+    }
+
     @Test
-    public void persistirProducto() {
+    public void crearProducto() {
         Categoria cateIndumentaria = new Categoria("Indumentaria");
         Marca marcaNike = new Marca("Nike");
         inTransactionExecute(
@@ -28,7 +37,7 @@ public class ProductoServiceTest {
                 }
         );
 
-        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA(emf);
         productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());
 
         inTransactionExecute(
@@ -44,7 +53,7 @@ public class ProductoServiceTest {
     }
 
     @Test
-    public void persistirProductoConCodigoRepetido() {
+    public void crearProductoConCodigoRepetido() {
         Categoria cateIndumentaria = new Categoria("Indumentaria");
         Marca marcaNike = new Marca("Nike");
         inTransactionExecute(
@@ -54,14 +63,21 @@ public class ProductoServiceTest {
                 }
         );
 
-        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA(emf);
         productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());
         assertThrows(RuntimeException.class,
                 () -> productoServiceJPA.crearProducto("123", "Camiseta", 5000.0, cateIndumentaria.getId(), marcaNike.getId()));
     }
 
     @Test
-    public void modificarProductoPersistido() {
+    public void crearProductoSinMarcaYCategoria() {
+        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA(emf);
+        assertThrows(RuntimeException.class,
+                () -> productoServiceJPA.crearProducto("123", "Camiseta", 5000.0, null, null));
+    }
+
+    @Test
+    public void modificarProductoExistente() {
         Categoria cateIndumentaria = new Categoria("Indumentaria");
         Marca marcaNike = new Marca("Nike");
         inTransactionExecute(
@@ -71,7 +87,7 @@ public class ProductoServiceTest {
                 }
         );
 
-        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA(emf);
         productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());
         productoServiceJPA.modificarProducto(3L, "Remera", "123", 4000.0, marcaNike.getId(), cateIndumentaria.getId());
 
@@ -88,7 +104,7 @@ public class ProductoServiceTest {
     }
 
     @Test
-    public void listarProductosPersistidos() {
+    public void modificarProductoInexistente() {
         Categoria cateIndumentaria = new Categoria("Indumentaria");
         Marca marcaNike = new Marca("Nike");
         inTransactionExecute(
@@ -97,7 +113,24 @@ public class ProductoServiceTest {
                     em.persist(marcaNike);
                 }
         );
-        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA("objectdb:myDbTestFile.tmp;drop");
+        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA(emf);
+        productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());
+
+        assertThrows(RuntimeException.class,
+                () -> productoServiceJPA.modificarProducto(9L, "Remera", "123", 4000.0, marcaNike.getId(), cateIndumentaria.getId()));
+    }
+
+    @Test
+    public void listarProductosExistentes() {
+        Categoria cateIndumentaria = new Categoria("Indumentaria");
+        Marca marcaNike = new Marca("Nike");
+        inTransactionExecute(
+                (em) -> {
+                    em.persist(cateIndumentaria);
+                    em.persist(marcaNike);
+                }
+        );
+        ProductoServiceJPA productoServiceJPA = new ProductoServiceJPA(emf);
         productoServiceJPA.crearProducto("123", "Remera", 5000.0, cateIndumentaria.getId(), marcaNike.getId());
         productoServiceJPA.crearProducto("456", "Pantalon", 9000.0, cateIndumentaria.getId(), marcaNike.getId());
         List<Producto> productosPersistidos = productoServiceJPA.listarProductos();
@@ -106,7 +139,6 @@ public class ProductoServiceTest {
     }
 
     public void inTransactionExecute(Consumer<EntityManager> bloqueDeCodigo) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("objectdb:myDbTestFile.tmp;drop");
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -122,5 +154,10 @@ public class ProductoServiceTest {
             if (em != null && em.isOpen())
                 em.close();
         }
+    }
+
+    @AfterEach
+    public void tearDown() {
+        emf.close();
     }
 }

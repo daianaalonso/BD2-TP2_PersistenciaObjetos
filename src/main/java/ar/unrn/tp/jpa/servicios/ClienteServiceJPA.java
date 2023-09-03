@@ -8,15 +8,14 @@ import javax.persistence.*;
 import java.util.List;
 
 public class ClienteServiceJPA implements ClienteService {
-    private String servicio;
+    private EntityManagerFactory emf;
 
-    public ClienteServiceJPA (String servicio) {
-        this.servicio = servicio;
+    public ClienteServiceJPA(EntityManagerFactory emf) {
+        this.emf = emf;
     }
 
     @Override
     public void crearCliente(String nombre, String apellido, String dni, String email) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -44,7 +43,6 @@ public class ClienteServiceJPA implements ClienteService {
 
     @Override
     public void modificarCliente(Long idCliente, String nombre, String apellido, String dni, String email) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -71,7 +69,6 @@ public class ClienteServiceJPA implements ClienteService {
 
     @Override
     public void agregarTarjeta(Long idCliente, String nro, String nombre) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -93,7 +90,6 @@ public class ClienteServiceJPA implements ClienteService {
 
     @Override
     public List listarTarjetas(Long idCliente) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -114,7 +110,6 @@ public class ClienteServiceJPA implements ClienteService {
 
     @Override
     public Cliente buscarCliente(Long idCliente) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {

@@ -3,20 +3,23 @@ package ar.unrn.tp.jpa.servicios;
 import ar.unrn.tp.api.VentaService;
 import ar.unrn.tp.modelo.*;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.util.List;
 
 public class VentaServiceJPA implements VentaService {
 
-    private String servicio;
-    public VentaServiceJPA(String servicio) {
-        this.servicio = servicio;
+    private EntityManagerFactory emf;
+
+    public VentaServiceJPA(EntityManagerFactory emf) {
+        this.emf = emf;
     }
 
     @Override
     public void realizarVenta(Long idCliente, List<Long> productos, Long idTarjeta) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(this.servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         Carrito carrito = new Carrito();
@@ -63,7 +66,6 @@ public class VentaServiceJPA implements VentaService {
 
     @Override
     public Double calcularMonto(List<Long> productos, Long idTarjeta) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(this.servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         Carrito carrito = new Carrito();
@@ -101,7 +103,6 @@ public class VentaServiceJPA implements VentaService {
 
     @Override
     public List ventas() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(this.servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {

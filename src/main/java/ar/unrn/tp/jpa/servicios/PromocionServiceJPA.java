@@ -6,20 +6,18 @@ import ar.unrn.tp.modelo.*;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 import java.time.LocalDate;
 
 public class PromocionServiceJPA implements PromocionService {
 
-    private String servicio;
+    private EntityManagerFactory emf;
 
-    public PromocionServiceJPA(String servicio) {
-        this.servicio = servicio;
+    public PromocionServiceJPA(EntityManagerFactory emf) {
+        this.emf = emf;
     }
 
     @Override
     public void crearDescuentoSobreTotal(String marcaTarjeta, LocalDate fechaDesde, LocalDate fechaHasta, Double porcentaje) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(this.servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
@@ -38,7 +36,6 @@ public class PromocionServiceJPA implements PromocionService {
 
     @Override
     public void crearDescuento(String marcaProducto, LocalDate fechaDesde, LocalDate fechaHasta, Double porcentaje) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(this.servicio);
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         try {
