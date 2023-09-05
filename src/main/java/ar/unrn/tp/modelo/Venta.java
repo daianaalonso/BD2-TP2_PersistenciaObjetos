@@ -35,7 +35,7 @@ public class Venta {
                 .forEach(this.productosVendidos::add);
     }
 
-    public Venta() {
+    protected Venta() {
     }
 
     public void setId(Long id) {

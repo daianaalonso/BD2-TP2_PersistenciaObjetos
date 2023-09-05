@@ -38,10 +38,10 @@ public class VentaServiceJPA implements VentaService {
 
             TypedQuery<Producto> q = em.createQuery("SELECT p FROM Producto p WHERE p.id IN :productos", Producto.class);
             q.setParameter("productos", productos);
-            List<Producto> productosVendidos = q.getResultList();
-            if (productosVendidos.isEmpty())
+            List<Producto> productosSeleccionados = q.getResultList();
+            if (productosSeleccionados.isEmpty())
                 throw new RuntimeException("Error. La lista de productos esta vacia.");
-            carrito.agregarProductosAlCarrito(productosVendidos);
+            carrito.agregarProductosAlCarrito(productosSeleccionados);
 
             TypedQuery<PagoPromocion> qp = em.createQuery("SELECT p FROM PagoPromocion p WHERE p.fechaInicio < :fecha and p.fechaFin > :fecha", PagoPromocion.class);
             qp.setParameter("fecha", LocalDate.now());
