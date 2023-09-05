@@ -2,6 +2,7 @@ package ar.unrn.tp.modelo;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,18 +14,25 @@ public class Venta {
     private LocalDateTime fecha;
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Cliente cliente;
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Tarjeta tarjeta;
     @OneToMany(cascade = CascadeType.PERSIST)
-    private List<Producto> productosVendidos;
+    private List<ProductoVendido> productosVendidos;
     private Double montoTotal;
 
     public Venta(LocalDateTime fecha, Cliente cliente, Tarjeta tarjeta, List<Producto> productosVendidos, Double montoTotal) {
-        this.productosVendidos = productosVendidos;
+        this.productosVendidos = new ArrayList<>();
         this.fecha = fecha;
         this.cliente = cliente;
         this.tarjeta = tarjeta;
         this.montoTotal = montoTotal;
+        agregarProductos(productosVendidos);
+    }
+
+    private void agregarProductos(List<Producto> productosVendidos) {
+        productosVendidos.stream()
+                .map(p -> new ProductoVendido(p.descripcion(), p.codigo(), p.precio(), p.marca(), p.categoria()))
+                .forEach(this.productosVendidos::add);
     }
 
     public Venta() {
@@ -38,7 +46,7 @@ public class Venta {
         return id;
     }
 
-    public boolean montoEs(Double montoTotal){
+    public boolean montoEs(Double montoTotal) {
         return this.montoTotal.equals(montoTotal);
     }
 }
